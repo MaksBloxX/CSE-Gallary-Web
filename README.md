@@ -4,7 +4,9 @@ A complete, working PHP event and media management system for the Department of 
 Agricultural University Bangladesh. Public gallery + secure admin panel with
 automatic WebP image compression.
 
-## Demo Login (hidden entrance)
+## Local XAMPP Demo Login (hidden entrance)
+These credentials are included for the **local XAMPP project/demo only**. They are not intended for a real university server.
+
 There is **no visible "Admin Login" button** on the public site (by design).
 Teachers enter in one of two ways:
 1. **Secret footer link:** click the **©** symbol in the footer of any page.
@@ -13,7 +15,9 @@ Teachers enter in one of two ways:
 | Field | Value |
 |---|---|
 | Username | `admin` |
-| Password | `ebaub123` (change before going live — see Customization Guide) |
+| Password | `ebaub123` |
+
+> Before deploying to any real server, change the password from **Account → Change Password**. Never reuse this demo password for production.
 
 ## The Pages
 | # | Page | File | Who |
