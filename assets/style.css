@@ -587,3 +587,54 @@ body:has(.site-footer) > .site-footer { margin-top:auto; }
 /* Keep the homepage search field wide on desktop before filter chips wrap. */
 @media (min-width:761px){.filter-bar .search-box{flex:1 1 520px;min-width:520px}}
 @media (min-width:761px) and (max-width:1050px){.filter-bar .search-box{flex-basis:100%;min-width:100%}}
+.event-gallery-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start}.event-gallery-main{min-width:0}.latest-events-panel{background:#fff;border:1px solid #dfe6ea;border-radius:12px;padding:18px;box-shadow:var(--shadow);position:sticky;top:20px}.latest-events-panel h3{margin:0 0 12px;color:var(--green-dark)}.latest-event-item{display:block;border-top:1px solid #eef2f4;padding:12px 0;color:var(--text);text-decoration:none}.latest-event-item img{width:78px;height:52px;object-fit:cover;border-radius:7px;float:left;margin-right:9px}.latest-event-item b{display:block;font-size:13px;line-height:1.3}.latest-event-item span{display:block;color:var(--muted);font-size:11.5px;margin-top:4px}.event-gallery-main:after{content:'';display:block;clear:both}@media(max-width:760px){.event-gallery-layout{display:flex;flex-direction:column;gap:18px}.latest-events-panel{position:static;width:100%;box-sizing:border-box}.event-gallery-main{width:100%}}
+.latest-event-item b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}.media-pagination{display:flex;gap:7px;justify-content:center;margin:20px 0}.media-pagination a{min-width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #dfe6ea;border-radius:7px;color:var(--green-dark);text-decoration:none;font-weight:700}.media-pagination a.active{background:var(--green);border-color:var(--green);color:#fff}.media-grid{gap:14px}.event-gallery-main .panel,.event-gallery-main details{margin-bottom:24px!important}@media(max-width:760px){.event-gallery-main .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}.event-gallery-main .media-item{aspect-ratio:1/1}.event-gallery-main .panel,.event-gallery-main details{margin-bottom:18px!important}}
+/* Event Gallery Option B: participation first; latest list takes the empty top position when absent. */
+@media(max-width:760px){
+ .event-gallery-layout.has-participants .event-gallery-main{order:1}.event-gallery-layout.has-participants .latest-events-panel{order:2}
+ .event-gallery-layout.no-participants .latest-events-panel{order:1}.event-gallery-layout.no-participants .event-gallery-main{order:2}
+}
+/* Option B: participation/content first, Latest Event List after it */
+.event-gallery-layout{display:flex!important;flex-direction:column!important;gap:24px!important}.event-gallery-main{width:100%!important}.latest-events-panel{position:static!important;width:100%!important;box-sizing:border-box!important}.latest-events-panel h3{margin-bottom:10px}.latest-events-panel .latest-event-item{display:inline-block;vertical-align:top;width:calc(20% - 14px);margin-right:12px;box-sizing:border-box}.latest-events-panel .latest-event-item:last-child{margin-right:0}@media(max-width:760px){.latest-events-panel .latest-event-item{display:block;width:100%;margin-right:0}.event-gallery-layout{gap:18px!important}}
+/* Event Gallery final layout: content left, Latest Event List right */
+.event-gallery-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;gap:24px!important;align-items:start!important}.event-gallery-main{width:auto!important;min-width:0!important}.latest-events-panel{grid-column:2!important;grid-row:1!important;width:auto!important;position:sticky!important;top:20px!important}.latest-events-panel .latest-event-item{display:block!important;width:auto!important;margin-right:0!important}@media(max-width:760px){.event-gallery-layout{display:flex!important;flex-direction:column!important;gap:18px!important}.event-gallery-main{order:1!important;width:100%!important}.latest-events-panel{order:2!important;width:100%!important;position:static!important}}
+/* Event Gallery: desktop right column = Participation, then Latest Events */
+@media(min-width:761px){
+ .event-gallery-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 300px!important;grid-template-rows:auto auto!important;gap:24px!important;align-items:start!important}
+ .event-gallery-main{display:contents!important}
+ .event-gallery-main > .event-layout{grid-column:1!important;grid-row:1!important}
+ .event-gallery-main > details.panel{grid-column:2!important;grid-row:1!important;margin:0!important;max-width:none!important}
+ .event-gallery-main > .media-grid,.event-gallery-main > .empty{grid-column:1!important;grid-row:2!important}
+ .event-gallery-main > .media-pagination{grid-column:1!important;grid-row:3!important}
+ .latest-events-panel{grid-column:2!important;grid-row:2!important;width:auto!important;position:static!important}
+}
+@media(max-width:760px){.event-gallery-main{display:block!important}.event-gallery-layout{display:flex!important;flex-direction:column!important}.event-gallery-main > details.panel{max-width:none!important;margin-bottom:18px!important}.latest-events-panel{order:3!important}}
+@media(min-width:761px){
+ .event-gallery-layout.no-participants .latest-events-panel{grid-column:2!important;grid-row:1!important}
+ .event-gallery-layout.no-participants .event-gallery-main > .media-grid,.event-gallery-layout.no-participants .event-gallery-main > .empty{grid-column:1!important;grid-row:2!important}
+}
+/* Remove empty vertical areas in Event Gallery side columns. */
+@media(min-width:761px){
+  .event-gallery-layout.no-participants .event-gallery-main{display:block!important}
+  .event-gallery-layout.no-participants .event-gallery-main > .event-layout{display:grid!important;grid-column:auto!important;grid-row:auto!important}
+  .event-gallery-layout.no-participants .event-gallery-main > .media-grid,
+  .event-gallery-layout.no-participants .event-gallery-main > .empty,
+  .event-gallery-layout.no-participants .event-gallery-main > .media-pagination{margin-top:18px!important}
+  .event-gallery-layout.has-participants .latest-events-panel{grid-row:1!important;align-self:start!important;margin-top:86px!important}
+}
+@media(min-width:761px){.event-gallery-layout.has-participants .event-gallery-main{display:block!important}.event-gallery-layout.has-participants .latest-events-panel{display:flex;flex-direction:column;gap:0}.event-gallery-layout.has-participants .latest-events-panel>details.panel{order:1}.event-gallery-layout.has-participants .latest-events-panel>h3{order:2}.event-gallery-layout.has-participants .latest-events-panel>.latest-event-item{order:3}}
+/* Final spacing: separate participation and latest panels; separate details and media. */
+@media(min-width:761px){
+ .event-gallery-layout.has-participants .latest-events-panel{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;display:block!important}
+ .event-gallery-layout.has-participants .latest-events-panel>details.panel{display:block!important;background:#fff!important;border:1px solid #dfe6ea!important;border-radius:12px!important;box-shadow:var(--shadow)!important;padding:18px!important;margin:0 0 18px!important}
+ .event-gallery-layout.has-participants .latest-events-panel>h3{display:block!important;background:#fff!important;border:1px solid #dfe6ea!important;border-radius:12px 12px 0 0!important;box-shadow:var(--shadow)!important;padding:16px 18px!important;margin:0!important}
+ .event-gallery-layout.has-participants .latest-events-panel>.latest-event-item{display:block!important;background:#fff!important;border-left:1px solid #dfe6ea!important;border-right:1px solid #dfe6ea!important;border-top:1px solid #eef2f4!important;padding:12px!important;margin:0!important}
+ .event-gallery-layout.has-participants .latest-events-panel>.latest-event-item:last-child{border-radius:0 0 12px 12px!important;border-bottom:1px solid #dfe6ea!important}
+ .event-gallery-main>.media-grid,.event-gallery-main>.empty,.event-gallery-main>.media-pagination{margin-top:24px!important}
+}
+@media(min-width:761px){.event-gallery-layout.has-participants .latest-events-panel{margin-top:0!important}}
+@media(max-width:760px){
+ .event-gallery-main>.event-layout{margin-bottom:18px!important}
+ .event-gallery-main>.event-participation-list{margin:0 0 18px!important;max-width:none!important}
+ .event-gallery-main>.media-grid{margin-top:0!important}
+}

@@ -101,6 +101,9 @@ $pstmt->execute([$id]);
 $participants = $pstmt->fetchAll();
 $pTeachers = array_values(array_filter($participants, fn($p) => $p['role'] === 'teacher'));
 $pStudents = array_values(array_filter($participants, fn($p) => $p['role'] === 'student'));
+$mediaPerPage = 9; $mediaPage = max(1, (int)($_GET['media_page'] ?? 1)); $mediaTotalPages = max(1, (int)ceil(count($media) / $mediaPerPage)); $mediaPage = min($mediaPage, $mediaTotalPages); $media = array_slice($media, ($mediaPage-1)*$mediaPerPage, $mediaPerPage);
+$latestEvents = [];
+if (!$isUpcoming) { $ls = $pdo->prepare("SELECT e.id,e.title,e.event_date,e.category,(SELECT COUNT(*) FROM media m WHERE m.event_id=e.id) media_count,(SELECT file_path FROM media m WHERE m.event_id=e.id ORDER BY COALESCE(sort_order,id),id LIMIT 1) cover FROM events e WHERE e.event_date <= ? AND e.id <> ? ORDER BY e.event_date DESC LIMIT 7"); $ls->execute([$today,$id]); $latestEvents = $ls->fetchAll(); }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,7 +130,7 @@ $pStudents = array_values(array_filter($participants, fn($p) => $p['role'] === '
   <div class="header-inner">
     <a class="brand" href="index.php">
       <img class="brand-logo-img" src="assets/cse-logo.png" alt="EBAUB CSE Logo" width="48" height="48" style="width:48px;height:48px">
-      <div class="brand-text"><b>Upcoming Event</b><span>EBAUB Discover</span></div>
+      <div class="brand-text"><b>Department of CSE</b><span><?= $isUpcoming ? 'Upcoming Event' : 'Discover Event' ?></span></div>
     </a>
     <button type="button" class="admin-menu-toggle" onclick="toggleAdminMenu()" aria-label="Open menu">☰</button>
     <nav class="nav">
@@ -147,6 +150,7 @@ $pStudents = array_values(array_filter($participants, fn($p) => $p['role'] === '
   <?php elseif ($isUpcoming): ?>
     <span style="display:inline-block;background:#fdecec;color:#c0392b;font-size:12px;font-weight:800;letter-spacing:.5px;padding:6px 14px;border-radius:999px;margin-bottom:12px">UPCOMING EVENT — REGISTRATION CLOSED</span>
   <?php endif; ?>
+  <?php if (!$isUpcoming): ?><div class="event-gallery-layout <?= $participants ? 'has-participants' : 'no-participants' ?>"><div class="event-gallery-main"><?php endif; ?>
   <div class="event-layout <?= $regOpen ? 'has-registration' : 'no-registration' ?>">
   <div class="event-details-box">
     <button type="button" class="event-details-toggle" onclick="toggleEventDescription()">Full Details <span id="detailsChevron">▼</span></button>
@@ -325,7 +329,11 @@ $pStudents = array_values(array_filter($participants, fn($p) => $p['role'] === '
       </div>
     <?php endforeach; ?>
   </div>
+  <?php if ($mediaTotalPages > 1): ?><div class="media-pagination"><?php for ($mp=1; $mp <= $mediaTotalPages; $mp++): ?><a class="<?= $mp === $mediaPage ? 'active' : '' ?>" href="event.php?id=<?= $id ?>&media_page=<?= $mp ?>"><?= $mp ?></a><?php endfor; ?></div><?php endif; ?>
   <?php endif; ?>
+<?php if (!$isUpcoming): ?>
+  </div><aside class="latest-events-panel"><h3>Latest Event List</h3><?php foreach ($latestEvents as $le): ?><a class="latest-event-item" href="event.php?id=<?= $le['id'] ?>"><?php if ($le['cover']): ?><img src="<?= e($le['cover']) ?>" alt=""><?php endif; ?><b><?= e($le['title']) ?></b><span><?= date('d M Y', strtotime($le['event_date'])) ?> · <?= (int)$le['media_count'] ?> items</span></a><?php endforeach; ?></aside></div>
+<?php endif; ?>
 </main>
 
 <!-- Lightbox -->
@@ -430,6 +438,27 @@ function setRole(r) {
   document.getElementById('tabStudent').classList.toggle('active', r === 'student');
   document.getElementById('tabTeacher').classList.toggle('active', r === 'teacher');
 }
+function arrangeEventGallery() {
+  const desktop = window.matchMedia('(min-width: 761px)').matches;
+  const layout = document.querySelector('.event-gallery-layout.has-participants');
+  if (!layout) return;
+  const main = layout.querySelector('.event-gallery-main');
+  const latest = layout.querySelector('.latest-events-panel');
+  if (!main || !latest) return;
+  let participation = document.querySelector('.event-participation-list');
+  if (!participation) participation = main.querySelector(':scope > details.panel');
+  if (!participation) return;
+  participation.classList.add('event-participation-list');
+  if (desktop) {
+    latest.insertBefore(participation, latest.firstChild);
+    main.style.display = 'block';
+  } else {
+    main.insertBefore(participation, main.querySelector('.media-grid') || null);
+    main.style.display = 'block';
+  }
+}
+arrangeEventGallery();
+window.addEventListener('resize', arrangeEventGallery);
 </script>
 
 <script>function toggleAdminMenu(){document.querySelector('.site-header .nav')?.classList.toggle('admin-nav-open');}</script>
