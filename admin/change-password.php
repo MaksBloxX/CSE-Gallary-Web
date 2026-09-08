@@ -60,6 +60,7 @@ $stillDemo = password_verify('ebaub123', (string)$stmt->fetchColumn());
       <a href="activities.php">Activities</a>
       <a href="registrations.php">Registrations</a>
       <a href="../index.php" target="_blank">View Site</a>
+      <a href="change-password.php">Account</a>
       <a class="btn-login" href="logout.php">Logout</a>
     </nav>
   </div>

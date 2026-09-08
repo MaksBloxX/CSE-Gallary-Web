@@ -96,7 +96,13 @@ function fmt_bytes($b) {
 }
 
 $storageLimitGB = 5;   /* <- university server quota; adjust here if needed */
-$cacheFile = sys_get_temp_dir() . '/ebaub_gallery_stats.json';
+/* Cache file lives inside includes/ (already blocked from direct web access
+   by includes/.htaccess) rather than the shared system temp directory —
+   on some low-cost shared hosts, /tmp is shared across unrelated accounts,
+   so a generic filename there could theoretically collide with another
+   site's cache. Keeping it out of uploads/ also means the storage-usage
+   scanner below never counts the cache file as part of "used storage". */
+$cacheFile = __DIR__ . '/../includes/.gallery_stats_cache.json';
 $stats = null;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < 120) {
     $stats = json_decode((string)file_get_contents($cacheFile), true);
@@ -201,6 +207,11 @@ $usedPct = min(100, round($stats['total'] / $limitBytes * 100, 1));
       <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px">VIDEOS</div>
       <div style="font-size:24px;font-weight:800;color:var(--green-dark);margin:6px 0"><?= (int)$stats['vid_c'] ?></div>
       <div style="font-size:12.5px;color:var(--muted)"><?= fmt_bytes($stats['vid_b']) ?> on disk</div>
+    </div>
+    <div class="panel" style="margin-bottom:0">
+      <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px">LARGEST EVENT</div>
+      <div style="font-size:16px;font-weight:800;color:var(--green-dark);margin:8px 0;line-height:1.3"><?= $stats['top_event'] ? e($stats['top_event']) : '—' ?></div>
+      <div style="font-size:12.5px;color:var(--muted)"><?= $stats['top_event'] ? fmt_bytes($stats['top_bytes']) : 'no media yet' ?></div>
     </div>
   </div>
 
