@@ -21,7 +21,10 @@ function parse_submitted_custom_fields(): ?string {
             if ($lbl !== '' && !empty($opts)) {
                 $customFields[] = [
                     'label' => $lbl,
-                    'options' => $opts
+                    'options' => $opts,
+                    'group' => !empty($_POST['cf_group'][$idx]),
+                    'depends_on' => trim($_POST['cf_depends_on'][$idx] ?? ''),
+                    'depends_value' => trim($_POST['cf_depends_value'][$idx] ?? '')
                 ];
             }
         }
@@ -96,13 +99,7 @@ function fmt_bytes($b) {
 }
 
 $storageLimitGB = 5;   /* <- university server quota; adjust here if needed */
-/* Cache file lives inside includes/ (already blocked from direct web access
-   by includes/.htaccess) rather than the shared system temp directory —
-   on some low-cost shared hosts, /tmp is shared across unrelated accounts,
-   so a generic filename there could theoretically collide with another
-   site's cache. Keeping it out of uploads/ also means the storage-usage
-   scanner below never counts the cache file as part of "used storage". */
-$cacheFile = __DIR__ . '/../includes/.gallery_stats_cache.json';
+$cacheFile = sys_get_temp_dir() . '/ebaub_gallery_stats.json';
 $stats = null;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < 120) {
     $stats = json_decode((string)file_get_contents($cacheFile), true);
@@ -207,11 +204,6 @@ $usedPct = min(100, round($stats['total'] / $limitBytes * 100, 1));
       <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px">VIDEOS</div>
       <div style="font-size:24px;font-weight:800;color:var(--green-dark);margin:6px 0"><?= (int)$stats['vid_c'] ?></div>
       <div style="font-size:12.5px;color:var(--muted)"><?= fmt_bytes($stats['vid_b']) ?> on disk</div>
-    </div>
-    <div class="panel" style="margin-bottom:0">
-      <div style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px">LARGEST EVENT</div>
-      <div style="font-size:16px;font-weight:800;color:var(--green-dark);margin:8px 0;line-height:1.3"><?= $stats['top_event'] ? e($stats['top_event']) : '—' ?></div>
-      <div style="font-size:12.5px;color:var(--muted)"><?= $stats['top_event'] ? fmt_bytes($stats['top_bytes']) : 'no media yet' ?></div>
     </div>
   </div>
 
@@ -346,7 +338,7 @@ $usedPct = min(100, round($stats['total'] / $limitBytes * 100, 1));
 </main>
 
 <script>
-function addCustomField(label = '', options = '') {
+function addCustomField(label = '', options = '', group = false, dependsOn = '', dependsValue = '') {
   const container = document.getElementById('customFieldsContainer');
   if (!container) return;
   const row = document.createElement('div');
@@ -355,6 +347,9 @@ function addCustomField(label = '', options = '') {
 
   const lblEsc = label.replace(/"/g, '&quot;');
   const optEsc = options.replace(/"/g, '&quot;');
+  const groupChecked = group ? 'checked' : '';
+  const depOnEsc = dependsOn.replace(/\"/g, '&quot;');
+  const depValEsc = dependsValue.replace(/\"/g, '&quot;');
 
   row.innerHTML = `
     <div style="flex:1 1 220px;min-width:180px">
@@ -365,15 +360,42 @@ function addCustomField(label = '', options = '') {
       <label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">Options (comma-separated)</label>
       <input type="text" name="cf_options[]" placeholder="e.g. Cricket, Football, Badminton, Ludu" value="${optEsc}" required style="width:100%;padding:8px 12px;font-size:13.5px;border:1px solid #d0d7de;border-radius:6px">
     </div>
-    <button type="button" class="btn btn-danger" style="padding:8px 12px;font-size:12px;margin-top:20px" onclick="this.closest('.cf-row').remove()">Remove</button>
+    <label style="flex:1 1 220px;font-size:12px;margin-top:20px"><input type="checkbox" name="cf_group[]" value="1" ${groupChecked}> Use as participant group heading</label><div style="flex:1 1 220px"><label style="font-size:12px;font-weight:600;display:block">Show when field (optional)</label><select name="cf_depends_on[]" class="cf-depends-on" data-current="${depOnEsc}" onchange="refreshConditionalFieldOptions()" style="width:100%;padding:8px"><option value="">Always show</option></select></div><div style="flex:1 1 180px"><label style="font-size:12px;font-weight:600;display:block">Selected value</label><select name="cf_depends_value[]" class="cf-depends-value" data-current="${depValEsc}" style="width:100%;padding:8px"><option value="">Choose condition first</option></select></div><button type="button" class="btn btn-danger" style="padding:8px 12px;font-size:12px;margin-top:20px" onclick="this.closest('.cf-row').remove()">Remove</button>
   `;
   container.appendChild(row);
+  refreshConditionalFieldOptions();
 }
+
+function refreshConditionalFieldOptions() {
+  const rows = Array.from(document.querySelectorAll('.cf-row'));
+  rows.forEach((row, idx) => {
+    const dep = row.querySelector('.cf-depends-on');
+    const val = row.querySelector('.cf-depends-value');
+    if (!dep || !val) return;
+    const oldDep = dep.value || dep.dataset.current || '';
+    const oldVal = val.value || val.dataset.current || '';
+    dep.innerHTML = '<option value="">Always show</option>';
+    rows.slice(0, idx).forEach(prev => {
+      const title = prev.querySelector('input[name="cf_label[]"]');
+      if (title && title.value.trim()) dep.insertAdjacentHTML('beforeend', `<option value="${title.value.trim().replace(/"/g, '&quot;')}">${title.value.trim()}</option>`);
+    });
+    dep.value = oldDep;
+    val.innerHTML = '<option value="">Choose condition first</option>';
+    if (dep.value) {
+      const prev = rows.slice(0, idx).find(r => r.querySelector('input[name="cf_label[]"]')?.value.trim() === dep.value);
+      const opts = prev?.querySelector('input[name="cf_options[]"]')?.value.split(',').map(x=>x.trim()).filter(Boolean) || [];
+      opts.forEach(o => val.insertAdjacentHTML('beforeend', `<option value="${o.replace(/"/g, '&quot;')}">${o}</option>`));
+      val.value = oldVal;
+    }
+  });
+}
+
+document.getElementById('customFieldsContainer')?.addEventListener('input', refreshConditionalFieldOptions);
 
 // Pre-populate if editing existing fields
 <?php if (!empty($editingCustomFields)): ?>
   <?php foreach ($editingCustomFields as $ecf): ?>
-    addCustomField(<?= json_encode($ecf['label']) ?>, <?= json_encode(implode(', ', $ecf['options'])) ?>);
+    addCustomField(<?= json_encode($ecf['label']) ?>, <?= json_encode(implode(', ', $ecf['options'])) ?>, <?= !empty($ecf['group']) ? 'true' : 'false' ?>, <?= json_encode($ecf['depends_on'] ?? '') ?>, <?= json_encode($ecf['depends_value'] ?? '') ?>);
   <?php endforeach; ?>
 <?php endif; ?>
 </script>

@@ -44,6 +44,7 @@ if ($regOpen && isset($_POST['register'])) {
     if ($role === 'student' && !empty($customFields)) {
         $subAnswers = $_POST['custom_answers'] ?? [];
         foreach ($customFields as $idx => $cf) {
+            if (!empty($cf['depends_on']) && (($studentAnswers[$cf['depends_on']] ?? '') !== ($cf['depends_value'] ?? ''))) { continue; }
             $val = trim($subAnswers[$idx] ?? '');
             if ($val === '') {
                 $regErr = 'Please choose: ' . $cf['label'];
@@ -182,7 +183,7 @@ if (!$isUpcoming) { $ls = $pdo->prepare("SELECT e.id,e.title,e.event_date,e.cate
       <div id="studentFields">
         <?php if (!empty($customFields)): ?>
           <?php foreach ($customFields as $cfIdx => $cf): ?>
-          <div class="field" style="margin-bottom:14px">
+          <div class="field student-custom-field" data-depends-on="<?= e($cf['depends_on'] ?? '') ?>" data-depends-value="<?= e($cf['depends_value'] ?? '') ?>" style="margin-bottom:14px">
             <label><?= e($cf['label']) ?> *</label>
             <select name="custom_answers[<?= $cfIdx ?>]" class="student-cf-select" required style="width:100%;padding:10px 14px;border:2px solid #dfe6ea;border-radius:10px;font-size:14.5px;background:#fff">
               <option value="">-- Choose <?= e($cf['label']) ?> --</option>
@@ -244,8 +245,11 @@ if (!$isUpcoming) { $ls = $pdo->prepare("SELECT e.id,e.title,e.event_date,e.cate
       <p style="margin:16px 0 6px;font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.5px">STUDENTS (<?= count($pStudents) ?>)</p>
       <?php if (!empty($customFields)): ?>
         <?php
-          $primaryField = $customFields[0]['label'] ?? '';
-          $primaryOptions = $customFields[0]['options'] ?? [];
+          $groupField = null;
+          foreach ($customFields as $cf) { if (!empty($cf['group'])) { $groupField = $cf; break; } }
+          $groupField = $groupField ?: ($customFields[0] ?? ['label'=>'','options'=>[]]);
+          $primaryField = $groupField['label'] ?? '';
+          $primaryOptions = $groupField['options'] ?? [];
 
           $byPrimary = [];
           $otherStudents = [];
@@ -425,6 +429,25 @@ function toggleEventDescription() {
   if (chevron) chevron.textContent = open ? '▲' : '▼';
 }
 
+function updateConditionalFields() {
+  const values = {};
+  document.querySelectorAll('.student-custom-field').forEach(row => {
+    const select = row.querySelector('select');
+    const label = row.querySelector('label');
+    if (select && label) values[label.textContent.replace(/\s\*$/, '').trim()] = select.value;
+  });
+  document.querySelectorAll('.student-custom-field').forEach(row => {
+    const dep = row.dataset.dependsOn || '';
+    const expected = row.dataset.dependsValue || '';
+    const show = !dep || values[dep] === expected;
+    row.style.display = show ? '' : 'none';
+    const select = row.querySelector('select');
+    if (select) { select.required = show && document.getElementById('roleInput').value === 'student'; if (!show) select.value = ''; }
+  });
+}
+document.querySelectorAll('.student-cf-select').forEach(el => el.addEventListener('change', updateConditionalFields));
+updateConditionalFields();
+
 /* Registration: student / teacher tab switch */
 function setRole(r) {
   const s = document.getElementById('studentFields');
@@ -435,6 +458,7 @@ function setRole(r) {
   s.style.display = r === 'student' ? '' : 'none';
   t.style.display = r === 'teacher' ? '' : 'none';
   document.querySelectorAll('.student-cf-select').forEach(el => el.required = (r === 'student'));
+  updateConditionalFields();
   document.getElementById('tabStudent').classList.toggle('active', r === 'student');
   document.getElementById('tabTeacher').classList.toggle('active', r === 'teacher');
 }

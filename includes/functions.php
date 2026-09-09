@@ -315,7 +315,10 @@ function get_event_custom_fields($event): array {
             if (!empty($item['label']) && !empty($item['options']) && is_array($item['options'])) {
                 $valid[] = [
                     'label' => trim($item['label']),
-                    'options' => array_values(array_filter(array_map('trim', $item['options'])))
+                    'options' => array_values(array_filter(array_map('trim', $item['options']))),
+                    'group' => !empty($item['group']),
+                    'depends_on' => trim($item['depends_on'] ?? ''),
+                    'depends_value' => trim($item['depends_value'] ?? '')
                 ];
             }
         }

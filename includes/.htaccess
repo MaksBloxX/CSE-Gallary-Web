@@ -1,0 +1,14 @@
+# ============================================================
+# EBAUB CSE Gallery — includes/.htaccess
+# Nobody should ever open config.php or functions.php directly
+# in a browser (they're only meant to be require()'d by other
+# pages). This blocks ALL direct requests to this folder.
+# ============================================================
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
