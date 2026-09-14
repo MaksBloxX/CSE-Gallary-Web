@@ -464,6 +464,16 @@ function setRole(r) {
 }
 function arrangeEventGallery() {
   const desktop = window.matchMedia('(min-width: 761px)').matches;
+  const regLayout = document.querySelector('.event-layout.has-registration');
+  if (regLayout) {
+    const possibleList = regLayout.parentElement.querySelector(':scope > details.panel');
+    if (desktop && possibleList && possibleList.parentElement !== regLayout) {
+      possibleList.classList.add('event-participation-list');
+      regLayout.appendChild(possibleList);
+    } else if (!desktop && possibleList && possibleList.parentElement === regLayout) {
+      regLayout.parentElement.appendChild(possibleList);
+    }
+  }
   const layout = document.querySelector('.event-gallery-layout.has-participants');
   if (!layout) return;
   const main = layout.querySelector('.event-gallery-main');

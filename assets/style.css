@@ -638,3 +638,11 @@ body:has(.site-footer) > .site-footer { margin-top:auto; }
  .event-gallery-main>.event-participation-list{margin:0 0 18px!important;max-width:none!important}
  .event-gallery-main>.media-grid{margin-top:0!important}
 }
+/* Registration events: stack form and participation on the left, details on the right. */
+@media(min-width:761px){
+ .event-layout.has-registration{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:24px!important}
+ .event-layout.has-registration>.event-register-box{grid-column:1!important;grid-row:1!important}
+ .event-layout.has-registration>.event-details-box{grid-column:2!important;grid-row:1 / span 2!important}
+ .event-layout.has-registration>.event-participation-list{grid-column:1!important;grid-row:2!important;width:100%!important;max-width:none!important;margin:0!important;align-self:start!important}
+}
+@media(max-width:760px){.event-layout.has-registration>.event-participation-list{margin-top:16px!important}}
