@@ -1,4 +1,4 @@
-name: EBAUB CSE Gallery - CI Pipeline
+name: EBAUB CSE Gallery PHP CI
 
 on:
   push:
