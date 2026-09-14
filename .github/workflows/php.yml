@@ -1,0 +1,50 @@
+name: EBAUB CSE Gallery PHP CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP Environment
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: gd, pdo, pdo_sqlite, pdo_mysql, mbstring
+        coverage: none
+
+    - name: Check PHP Syntax (Linting)
+      run: |
+        echo "Checking syntax of all PHP files..."
+        find . -type f -name "*.php" -exec php -l {} \; | grep -v "No syntax errors detected" && exit 1 || echo "All PHP files have valid syntax!"
+
+    - name: Verify GD & Image Compression Extensions
+      run: |
+        php -r "extension_loaded('gd') or exit(1);"
+        php -r "function_exists('imagewebp') or exit(1);"
+        echo "GD extension and WebP compression support are enabled."
+
+    - name: Verify PDO Database Extensions
+      run: |
+        php -r "extension_loaded('pdo_sqlite') or exit(1);"
+        php -r "extension_loaded('pdo_mysql') or exit(1);"
+        echo "Database drivers (SQLite and MySQL) are available."
+
+    - name: Test Local SQLite Database Connection
+      run: |
+        php -r "
+          if (file_exists('gallery.db')) {
+            \$pdo = new PDO('sqlite:gallery.db');
+            echo 'SQLite database file loaded successfully.';
+          } else {
+            echo 'No gallery.db found, skipping local DB test.';
+          }
+        "
