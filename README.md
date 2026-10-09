@@ -1,149 +1,214 @@
 # EBAUB CSE Department — Event & Media Management System
 
-A complete, working PHP event and media management system for the Department of CSE, Exim Bank
-Agricultural University Bangladesh. Public gallery + secure admin panel with
-automatic WebP image compression.
+A responsive PHP application for managing Department of CSE events, registrations, activities and media at **Exim Bank Agricultural University Bangladesh (EBAUB)**. Visitors browse the public gallery; teachers manage content through a protected admin panel.
 
-## Local XAMPP Demo Login (hidden entrance)
-These credentials are included for the **local XAMPP project/demo only**. They are not intended for a real university server.
+<p align="center">
+  <img src="assets/cse-logo.png" alt="EBAUB Department of CSE logo" width="88">
+</p>
 
-There is **no visible "Admin Login" button** on the public site (by design).
-Teachers enter in one of two ways:
-1. **Secret footer link:** click the **©** symbol in the footer of any page.
-2. **Direct URL:** type `/admin/login.php` in the browser.
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-8%2B-777BB4?logo=php&logoColor=white" alt="PHP 8 or newer">
+  <img src="https://img.shields.io/badge/Database-SQLite%20%7C%20MySQL-4479A1" alt="SQLite or MySQL">
+  <img src="https://img.shields.io/badge/Layout-Responsive-1B7A43" alt="Responsive layout">
+</p>
+
+## Product Preview
+
+The screenshots below are captured from the running site with the bundled demo content. The phone-sized view shows the responsive mobile layout.
+
+<p align="center">
+  <img src="previews/home-desktop.png" alt="EBAUB CSE gallery homepage on desktop" width="840">
+  <img src="previews/home-mobile.png" alt="EBAUB CSE gallery homepage on mobile" width="220">
+</p>
+
+## Project Context
+
+| | |
+|---|---|
+| **Department** | Computer Science & Engineering, EBAUB |
+| **Institution** | Exim Bank Agricultural University Bangladesh, Chapainawabganj |
+| **Purpose** | Publish department events, registrations, achievements and media |
+| **Application type** | PHP website with a teacher/admin management panel |
+
+## What the System Does
+
+### Public website
+
+- **Home and Event Gallery** — rotating hero images, keyword search, event-category filters, activity highlights and past-event cards.
+- **Upcoming Events** — upcoming event listings with registration status and deadlines.
+- **Event details** — event description, photo/video gallery, lightbox, participation list and online registration when registration is open.
+- **Activities & Achievements** — dedicated pages for labs, projects, contests and other department work, with location, facilities, assigned persons and multiple photos.
+- **All Media** — a combined photo/video gallery for event and activity media, with filters and pagination.
+- **Responsive navigation** — desktop navigation and a mobile hamburger menu; layouts adapt for phones, tablets and desktops.
+- **Search and sharing metadata** — page descriptions, canonical URLs and Open Graph/Twitter Card metadata for public pages.
+
+### Teacher/admin panel
+
+- **Event management** — create, edit and remove events, set registration deadlines and manage the homepage slider.
+- **Flexible registration forms** — add student dropdown questions, mark a question as the participant-group heading and show a question only when another answer matches a selected value. Students can use a one-time edit link to correct their registration before the deadline.
+- **Registration management** — view participants, make further admin-side corrections and export registrations as CSV.
+- **Media management** — upload multiple photos/videos, choose a cover image and arrange the display order.
+- **Activity management** — publish or hide activities and manage their details and photo galleries.
+- **Storage monitor and account security** — view storage use and change the admin password from the account page.
+
+### Event lifecycle
+
+1. A teacher creates an event and optionally sets a registration deadline and custom student questions.
+2. Students or teachers register on the event page while registration is open.
+3. Teachers manage the event's media and participant list from the admin panel.
+4. On the event date, the event automatically moves from **Upcoming Events** to the **Event Gallery**.
+
+## Pages and Files
+
+| Page | File | Access |
+|---|---|---|
+| Home / Event Gallery | `index.php` | Public |
+| Activities & Achievements | `activities.php` | Public |
+| Upcoming Events | `upcoming.php` | Public |
+| Event details, registration and media | `event.php?id=...` | Public |
+| Combined Media Gallery | `all-media.php` | Public |
+| Admin dashboard and event setup | `admin/dashboard.php` | Teachers/admins |
+| Event photo/video manager | `admin/media.php` | Teachers/admins |
+| Activity manager | `admin/activities.php` | Teachers/admins |
+| Registrations and CSV export | `admin/registrations.php` | Teachers/admins |
+| Admin registration correction | `admin/edit-registration.php` | Teachers/admins |
+| Account / change password | `admin/change-password.php` | Teachers/admins |
+
+## Technology
+
+- **PHP 8+** with PDO
+- **SQLite** for the included local demo database; **MySQL** for XAMPP or hosted deployment
+- HTML, CSS and vanilla JavaScript — no frontend framework or build step
+- **PHP GD recommended** for image resizing and WebP compression; uploads fall back gracefully when the needed GD/WebP functions are unavailable
+
+## Run Locally with XAMPP
+
+### Requirements
+
+- XAMPP with PHP 8 or newer and Apache
+- `pdo_sqlite` enabled for the default local demo
+- PHP GD recommended for image processing
+
+### Quick start — SQLite demo
+
+1. Get the project source. For example:
+
+   ```bash
+   git clone https://github.com/MaksBloxX/cse-gallary.git cse-gallery
+   ```
+
+   You can also download the repository as a ZIP.
+2. Copy the project folder into XAMPP's `htdocs` directory. For the current Windows setup, use:
+
+   ```text
+   D:\Program Files\XMDL\htdocs\cse-gallery
+   ```
+
+   A standard XAMPP installation might use `C:\xampp\htdocs\cse-gallery` instead.
+3. Open XAMPP Control Panel and start **Apache**. The bundled demo uses SQLite, so MySQL does not need to be started for this mode.
+4. Visit **<http://localhost/cse-gallery/>**.
+5. To reach the admin login, click the **©** symbol in the site footer or open **<http://localhost/cse-gallery/admin/login.php>** directly.
+
+The demo database is `gallery.db`. If you are setting up a fresh, empty SQLite database, run `php setup.php` once from the project folder to create the starter database and demo admin. Do not run it to reset a database that already contains data.
+
+### Local demo login
 
 | Field | Value |
 |---|---|
 | Username | `admin` |
 | Password | `ebaub123` |
 
-> Before deploying to any real server, change the password from **Account → Change Password**. Never reuse this demo password for production.
+> These credentials are for a local demo only and are intentionally documented here. Change the password from **Account** before exposing the site to anyone else. Never use the demo password on a public or university server.
 
-## The Pages
-| # | Page | File | Who |
-|---|------|------|-----|
-| 1 | Home / Albums (hero slider, search, filter, activities scroller, pagination) | `index.php` | Public |
-| 2 | Activities & Achievements (dedicated showcases, full writeups, multi-photo galleries) | `activities.php` | Public |
-| 3 | Single Album + Lightbox + Registration + Role Participation List | `event.php` | Public |
-| 4 | Upcoming Events (registration open/deadline indicator) | `upcoming.php` | Public |
-| 5 | All Media (every photo/video, filter, pagination) | `all-media.php` | Public |
-| 6 | Admin Login (hashed passwords, sessions) | `admin/login.php` | Teachers |
-| 7 | Dashboard — Event & Media Management + Homepage Slider + Storage Monitor | `admin/dashboard.php` | Teachers |
-| 8 | Media Upload & Management (multi-upload, Set Cover, reorder) | `admin/media.php` | Teachers |
-| 9 | Activity Manager (create activities, upload multiple photos, delete) | `admin/activities.php` | Teachers |
-| 10 | Event Registrations, Admin Edit & Attendance CSV Export | `admin/registrations.php`, `admin/edit-registration.php` | Teachers |
-| 11 | Change Password / Account Security | `admin/change-password.php` | Teachers |
+## Choose a Database
 
-## Key features
-- **Auto WebP compression** on upload (GD): a 458 KB JPEG became 49 KB in testing (~89% smaller). Graceful fallback if GD is missing.
-- **Homepage slider**: 3 slides managed from the Admin Dashboard, auto-rotate every 4.5s.
-- **Activities & Achievements**: create activities, laboratories, projects, contests or research centers from Admin → Activities, add location, facilities/instruments, assigned teachers/persons and multiple photos. The public page provides a desktop activity list with selected details and a mobile selection dropdown.
-- **Responsive navigation**: desktop navigation stays horizontal; mobile public and admin pages use a clear hamburger menu with a visible glass-style background.
-- **Event registration**: teachers can create multiple Google Form-like student dropdown fields, each with its own title and options (for example, Select Sport, Select Team, and Participation Role). Teachers do not need to fill student-only fields.
-- **Participation arrangement**: teachers appear first in the public participation list; students are grouped by the first custom field, with other selected options shown as badges.
-- **Combined All Media**: the All Media page includes both Event media and Activity media, with All, Events, Activities, Photos, and Videos filters.
-- **Event lifecycle**: registration starts when an event is created, closes after the registration deadline, and the event moves from Upcoming Events to Event Gallery after the event date.
-- **Registration correction**: students can use a one-time edit link before the deadline; teachers/admins can edit registrations from the admin panel when further correction is needed.
-- **Event page layout**: on desktop, Registration Form and Full Details appear as separate side-by-side boxes; on mobile, Full Details can be opened or closed with a single Full Details arrow control, followed by the registration form and participation list.
-- **Footer layout**: public pages keep the footer full-width and flush with the bottom of short pages.
-- **Media arrangement**: Set Cover button + move up/down arrows; public pages follow the order. The needed DB column is added by **auto-migration** — no manual SQL.
-- **Storage monitor** (admin only): total usage, photos vs videos, largest event, progress bar against quota. Cached 2 minutes.
-- **Admin security**: CSRF protection on forms, hardened session cookies, security headers, hidden database errors in production, login slow-down, and a registration honeypot against basic spam bots.
-- **Account security**: admins can change their password from the Account / Change Password page; the default password warning disappears after changing it.
-- **SEO and sharing**: public pages include page-specific descriptions, canonical URLs, Open Graph tags, and Twitter Card tags for better search and social previews.
-- **Performance**: lazy loading, pagination, videos never preload, prepared statements, output escaping, hashed passwords, session regeneration.
-- **Fully responsive**: phone / tablet / desktop breakpoints in `assets/style.css`.
+### SQLite — local/demo mode
 
----
+SQLite is active by default in `includes/config.php` and uses the project-root `gallery.db`. No phpMyAdmin import is needed for the included demo. Make sure the PHP `pdo_sqlite` extension is enabled.
 
-## CUSTOMIZATION GUIDE — what to change & where
+### MySQL — XAMPP or hosted server
 
-| What you want to change | File | What to edit |
-|---|---|---|
-| **Admin password** | database (`admins` table) | Generate a hash: `php -r "echo password_hash('NewPass', PASSWORD_DEFAULT);"` then paste it into the `password` field via phpMyAdmin |
-| **Add another admin/teacher account** | database (`admins` table) | Insert a new row with username + hashed password (same method as above) |
-| **Database connection** (XAMPP / university server) | `includes/config.php` | Comment the SQLite line, uncomment the MySQL block, fill in host / dbname / user / password given by the IT admin |
-| **Image / video size limits** | `includes/config.php` | `MAX_IMAGE_MB` (default 5) and `MAX_VIDEO_MB` (default 25) |
-| **Storage quota shown in dashboard** | `admin/dashboard.php` | `$storageLimitGB = 5;` — set to the real quota (e.g. 10) |
-| **Event categories** (Seminar, Workshop...) | `admin/dashboard.php` | The array in the Category `<select>`: `['Seminar','Workshop','Contest','Study Tour','Cultural','Other']` |
-| **Homepage slider images** | Admin Dashboard (no code!) | Login → "Homepage Slider" panel → Set Slide 1/2/3 |
-| **Hero title / subtitle text** | `index.php` | The `<h1>` and `<p>` inside `<section class="hero">` |
-| **Main Website link** | `index.php`, `all-media.php` | The `https://ebaub.ac.bd/` href in the nav |
-| **Facebook / LinkedIn / WhatsApp links** | `index.php`, `event.php`, `all-media.php` | The three `<a href=...>` in the footer social block |
-| **Footer address / email / credit** | `index.php`, `event.php`, `all-media.php` | The text inside `<footer class="site-footer">` |
-| **Theme colors** (green, gold...) | `assets/style.css` | The `:root { --green: ... }` variables at the top |
-| **Slider speed** | `index.php` | `setInterval(... , 4500)` — milliseconds |
-| **Events per page / media per page** | `index.php` / `all-media.php` | `$perPage = 12;` / `$perPage = 24;` |
-| **WebP quality / max resolution** | `includes/functions.php` | `imagewebp($src, ..., 80)` and `$maxDim = 1600` |
+1. Create a MySQL database named `cse_gallery` (or use the database name supplied by the server administrator).
+2. Import `mysql_schema.sql` into that database using phpMyAdmin.
+3. In `includes/config.php`, comment out the SQLite connection and enable the MySQL connection. Replace the example database name, username and password with the correct credentials.
+4. Make sure PHP's `pdo_mysql` extension is enabled and that the `uploads/` directory is writable by PHP.
+5. Back up the database before deploying updates. The application applies supported additive database migrations when it starts.
 
-> Rule of thumb: after ANY change, press `Ctrl+F5` in the browser so the old
-> cache does not fool you.
+Do **not** upload the local `gallery.db` to a live server. Keep database credentials private and change the seeded demo admin password immediately after the first login.
 
----
+## Hosted Deployment Checklist
 
-## DEPLOYING TO THE UNIVERSITY SERVER (cPanel)
+- Ask the university IT administrator for the destination URL, MySQL database/user, PHP version and upload limits.
+- Upload the application files to the chosen web directory; import `mysql_schema.sql` and configure `includes/config.php` for MySQL.
+- Do not deploy the local demo database. Remove or restrict `setup.php` after setup, and avoid publishing demo data on the live site.
+- Change the default admin password, use HTTPS and keep `APP_DEBUG` disabled on the production server.
+- Confirm that `uploads/` is writable by PHP and test event creation, registration, photo/video uploads, CSV export and the mobile layout.
+- The gallery is a standalone site. To connect it from the main university website, the IT team can add a normal menu link to the gallery URL; no code integration with the main site is required.
 
-### What goes to the server?
-Upload the **entire `cse-gallery` folder** — every file and subfolder:
+## Upload Settings
 
+The application defaults are in `includes/config.php`: `MAX_IMAGE_MB` is **5 MB** and `MAX_VIDEO_MB` is **25 MB**. For multiple uploads, check the active XAMPP `php.ini` and, if needed, set:
+
+```ini
+upload_max_filesize=25M
+post_max_size=120M
+max_file_uploads=40
 ```
+
+Restart Apache after changing `php.ini`. These PHP limits do not replace the application's own image/video size limits.
+
+## Security and Privacy
+
+- Passwords are stored as hashes; database queries use PDO prepared statements where data is supplied by users.
+- Forms use CSRF tokens; sessions use hardened cookie settings and session ID regeneration on login.
+- Public output is escaped, login attempts are slowed after repeated failures, and registration includes a basic honeypot field.
+- Production database errors are logged rather than shown to visitors.
+- Back up registrations securely and do not commit real participant data, production credentials or uploaded private media to a public repository.
+
+## Project Structure
+
+```text
 cse-gallery/
-├── index.php, event.php, all-media.php, setup.php (setup.php optional)
-├── admin/            (login, dashboard, activities, media, registrations, account files)
-├── includes/         (config.php, functions.php)
-├── assets/            (style.css, cse-logo.png, exim-logo.png)
-├── .htaccess          (root security rules)
-├── includes/          (config.php, functions.php, .htaccess)
-├── uploads/           (events, activities, hero media, .htaccess)
-└── mysql_schema.sql   (only needed once, for phpMyAdmin import)
+├── admin/                 # Teacher/admin pages
+├── assets/                # CSS, logos and interface icons
+├── docs/screenshots/       # README desktop and mobile captures
+├── includes/              # Database setup and shared PHP helpers
+├── uploads/
+│   ├── activities/         # Activity photos
+│   ├── events/             # Event photos and videos
+│   └── hero/               # Homepage slider images
+├── index.php               # Home and Event Gallery
+├── activities.php          # Activities & Achievements
+├── upcoming.php            # Upcoming events
+├── event.php               # Event details, registration and gallery
+├── all-media.php           # Combined event/activity media
+├── setup.php               # Optional local SQLite demo setup
+├── mysql_schema.sql        # MySQL starter schema
+└── gallery.db              # Local demo database — do not deploy
 ```
 
-Do NOT upload: `gallery.db` (that is only the local SQLite demo).
+## Useful Configuration
 
-### Are the files "connected" to the university website? How does it work?
-The gallery is **self-contained**: all its files link to each other with
-relative paths, so it works from any folder. It connects to two things only:
+| Change | File or location |
+|---|---|
+| Database connection | `includes/config.php` |
+| Maximum image/video upload size | `includes/config.php` — `MAX_IMAGE_MB`, `MAX_VIDEO_MB` |
+| Storage quota displayed in dashboard | `admin/dashboard.php` — `$storageLimitGB` |
+| Event categories | `admin/dashboard.php` — category options |
+| Homepage slider images | Admin Dashboard → Homepage Slider |
+| Theme colors and responsive breakpoints | `assets/style.css` |
+| Public page titles and SEO descriptions | The relevant public PHP page |
 
-1. **The database** — through ONE file: `includes/config.php`. On the
-   university server the IT admin gives you MySQL credentials; you put them
-   in the MySQL block of `config.php`. That is the only "wire" to plug in.
-2. **The main university website** — there is NO code connection and none is
-   needed. The gallery lives at its own URL. The IT admin simply adds a
-   normal menu link on the main site pointing to the gallery.
+## Troubleshooting
 
-### Step-by-step on cPanel
-1. Ask the IT admin for: cPanel access (or FTP), a MySQL database + user, and
-   where to place the folder (usually `public_html/`).
-2. Upload the whole `cse-gallery` folder into `public_html/`
-   → the gallery URL becomes `https://ebaub.ac.bd/cse-gallery`
-   (or a subdomain like `cse.ebaub.ac.bd/gallery` if IT prefers).
-3. In cPanel → phpMyAdmin: create the database, import `mysql_schema.sql`.
-4. Edit `includes/config.php`: switch to the MySQL block with the credentials.
-   Note: on shared hosting the DB name/user usually get a prefix like
-   `ebaub_gallery` / `ebaub_admin` — use exactly what cPanel shows.
-5. Make sure the `uploads/` folder is writable (cPanel File Manager →
-   permissions `755`, or `775` if uploads fail).
-6. Change the admin password (see Customization Guide).
-7. Test: open the gallery URL, log in, create a test event, upload a photo,
-   delete the test event.
-8. Give the IT admin the final URL to link from the main website menu.
+| Symptom | Check |
+|---|---|
+| Database/driver error | Enable `pdo_sqlite` for SQLite or `pdo_mysql` for MySQL in the active PHP installation. |
+| Images do not resize or convert | Enable `extension=gd` in XAMPP's `php.ini`, then restart Apache. WebP support depends on the installed GD build. |
+| Upload fails or stops partway | Check the PHP upload limits above, the app's `MAX_IMAGE_MB` / `MAX_VIDEO_MB`, and write access to `uploads/`. |
+| Changes do not appear in the browser | Hard-refresh with **Ctrl + Shift + R** to bypass cached CSS and images. |
+| Page not found | Check that the project folder name in `htdocs` matches the URL, for example `cse-gallery` → `http://localhost/cse-gallery/`. |
 
-### After going live — routine use (no code ever needed)
-Teachers only use the Admin Panel: create events, upload photos/videos,
-set covers, arrange order, change slider images, watch the storage monitor.
+## Credits
 
----
-
-## Run it on your PC with XAMPP (step-by-step)
-1. Install **XAMPP**, start **Apache** and **MySQL**.
-2. Copy this whole `cse-gallery` folder into `C:\xampp\htdocs\`.
-3. `http://localhost/phpmyadmin` → create database `cse_gallery` → Import → `mysql_schema.sql`.
-4. In `includes/config.php`: comment the SQLite line, uncomment the MySQL block (user `root`, empty password).
-5. php.ini: enable `extension=gd`, and for multi-upload set
-   `upload_max_filesize=25M`, `post_max_size=120M`, `max_file_uploads=40`.
-   Restart Apache after saving. If using your current XAMPP installation, the
-   project folder is `D:\\Program Files\\XMDL\\htdocs\\cse-gallery`.
-6. Visit `http://localhost/cse-gallery`.
-
-## Deployment path (tell your teacher this)
-**Localhost (XAMPP) → Free cPanel staging (e.g. InfinityFree) → University server**
+Built for the **Department of Computer Science & Engineering, Exim Bank Agricultural University Bangladesh (EBAUB)**. Website footer credit: **Developed by MaksBlox IT**.
